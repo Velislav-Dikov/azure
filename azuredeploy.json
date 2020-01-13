@@ -1,0 +1,57 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+
+        "webAppName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "webAppPlan": "[concat(parameters('webAppName'), '-plan')]",
+        "webAppPlanId": "[resourceId('Microsoft.Web/serverfarms', variables('webAppPlan'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2018-11-01",
+            "name": "[parameters('webAppName')]",
+            "type": "Microsoft.Web/sites",
+            "location": "[resourceGroup().location]",
+            "tags": null,
+            "dependsOn": [
+                "[variables('webAppPlanId')]"
+            ],
+            "properties": {
+                "name": "[parameters('webAppName')]",
+                "siteConfig": {
+                    "appSettings": [],
+                    "linuxFxVersion": "JAVA|11-java11",
+                    "alwaysOn": true
+                },
+                "serverFarmId": "[variables('webAppPlanId')]",
+                "hostingEnvironment": "",
+                "clientAffinityEnabled": false
+            }
+        },
+        {
+            "apiVersion": "2018-11-01",
+            "name": "[variables('webAppPlan')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[resourceGroup().location]",
+            "kind": "linux",
+            "tags": null,
+            "dependsOn": [],
+            "properties": {
+                "name": "[variables('webAppPlan')]",
+                "workerSize": "3",
+                "workerSizeId": "3",
+                "numberOfWorkers": "1",
+                "reserved": true
+                },
+            "sku": {
+                "Tier": "PremiumV2",
+                "Name": "P1v2"
+            }
+        }
+    ]
+}
